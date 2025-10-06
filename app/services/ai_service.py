@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, TypeVar, Type, Any
+from typing import List, Dict, Type, Any
 import logging
 from pydantic import BaseModel, Field
 import instructor

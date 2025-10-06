@@ -1,12 +1,9 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks, status
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Optional
-import uuid
 import logging
 
 from ...services.job_service import job_service
-from ...models import Job, JobStatus, ReportResponse
+from ...models import JobStatus, ReportResponse
 from ...tasks import process_report_generation
 
 router = APIRouter()

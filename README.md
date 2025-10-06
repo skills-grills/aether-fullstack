@@ -1,3 +1,5 @@
+# REWRITE ME TUESDAY MORNING!
+
 # AI Report Generation Service
 
 A FastAPI-based service that generates detailed reports using AI. The service allows users to submit a topic and receive a structured report with multiple sections, all processed asynchronously.

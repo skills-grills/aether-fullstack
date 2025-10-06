@@ -1,5 +1,4 @@
 import asyncio
-from typing import Dict, List
 import logging
 from .services.job_service import job_service
 from .services.ai_service import ai_service
