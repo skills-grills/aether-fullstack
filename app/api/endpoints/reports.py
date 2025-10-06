@@ -5,7 +5,7 @@ from typing import Optional
 import uuid
 import logging
 
-from ...services import job_service
+from ...services.job_service import job_service
 from ...models import Job, JobStatus, ReportResponse
 from ...tasks import process_report_generation
 

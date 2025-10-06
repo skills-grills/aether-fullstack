@@ -20,45 +20,47 @@ A FastAPI-based service that generates detailed reports using AI. The service al
 ## Setup
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd aether-fullstack
    ```
+2. Create and activate a virtual environment.
 
-2. Create and activate a virtual environment:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .\.venv\Scripts\activate
    ```
-
 3. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
+   **NOTE:** The above steps can be done with the faster `uv` package (which I actually use).
 4. Create a `.env` file from the example:
+
    ```bash
    cp .env.example .env
    ```
-
 5. Update the `.env` file with your OpenAI API key and any other necessary configurations.
 
 ## Running the Application
 
 1. Start the Redis server:
+
    ```bash
    # On Linux/macOS
    redis-server
-   
+
    # On Windows (if installed via Chocolatey)
    redis-server
    ```
-
 2. Start the FastAPI application:
+
    ```bash
    uvicorn app.main:app --reload
    ```
-
 3. The API will be available at `http://localhost:8000`
 4. Access the interactive API documentation at `http://localhost:8000/docs`
 
@@ -76,6 +78,7 @@ Content-Type: application/json
 ```
 
 Response (202 Accepted):
+
 ```json
 {
   "job_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -91,6 +94,7 @@ GET /api/v1/reports/{job_id}
 ```
 
 Response (200 OK):
+
 ```json
 {
   "job_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -143,31 +147,32 @@ flake8
 ### Docker
 
 1. Build the Docker image:
+
    ```bash
    docker build -t ai-report-service .
    ```
-
 2. Run the container:
+
    ```bash
    docker run -p 8000:8000 --env-file .env ai-report-service
    ```
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `API_KEY` | OpenAI API key | - |
-| `API_BASE_URL` | OpenAI API base URL | `https://api.openai.com/v1` |
-| `MODEL_NAME` | OpenAI model to use | `gpt-4` |
-| `REDIS_HOST` | Redis host | `localhost` |
-| `REDIS_PORT` | Redis port | `6379` |
-| `REDIS_DB` | Redis database number | `0` |
-| `HOST` | Application host | `0.0.0.0` |
-| `PORT` | Application port | `8000` |
-| `DEBUG` | Enable debug mode | `False` |
+| Variable         | Description           | Default                       |
+| ---------------- | --------------------- | ----------------------------- |
+| `API_KEY`      | OpenAI API key        | -                             |
+| `API_BASE_URL` | OpenAI API base URL   | `https://api.openai.com/v1` |
+| `MODEL_NAME`   | OpenAI model to use   | `gpt-4`                     |
+| `REDIS_HOST`   | Redis host            | `localhost`                 |
+| `REDIS_PORT`   | Redis port            | `6379`                      |
+| `REDIS_DB`     | Redis database number | `0`                         |
+| `HOST`         | Application host      | `0.0.0.0`                   |
+| `PORT`         | Application port      | `8000`                      |
+| `DEBUG`        | Enable debug mode     | `False`                     |
 
 ## License
 
 MIT
 
-My Assessment for Aether's FSE 
+My Assessment for Aether's FSE

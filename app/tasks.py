@@ -1,7 +1,8 @@
 import asyncio
 from typing import Dict, List
 import logging
-from .services import job_service, ai_service
+from .services.job_service import job_service
+from .services.ai_service import ai_service
 from .models import JobStatus
 
 logger = logging.getLogger(__name__)

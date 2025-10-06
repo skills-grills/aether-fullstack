@@ -1,10 +1,9 @@
-version: '3.8'
 
 services:
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - redis_data:/data
     networks:
@@ -13,12 +12,9 @@ services:
   app:
     build: .
     ports:
-      - "8000:8000"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - API_KEY=${API_KEY}
-      - DEBUG=True
+      - "${PORT}:${PORT}"
+    env_file:
+      - .env
     volumes:
       - .:/app
     depends_on:

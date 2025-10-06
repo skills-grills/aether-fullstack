@@ -14,8 +14,8 @@ class JobBase(BaseModel):
     topic: str = Field(..., description="The topic for the report")
     status: JobStatus = Field(default=JobStatus.PENDING, description="Current status of the job")
     progress: float = Field(default=0.0, ge=0.0, le=1.0, description="Progress of the job (0.0 to 1.0)")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
+    updated_at: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
 
 class JobCreate(JobBase):
     pass
