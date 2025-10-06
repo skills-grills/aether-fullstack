@@ -1,86 +1,115 @@
-import json
-import httpx
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, TypeVar, Type, Any
 import logging
+from pydantic import BaseModel, Field
+import instructor
+from openai import AsyncOpenAI
 from ..config import settings
 
 logger = logging.getLogger(__name__)
 
-class AIService:
-    def __init__(self):
-        self.api_key = settings.API_KEY
-        self.base_url = settings.API_BASE_URL
-        self.model = settings.MODEL_NAME
-        self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
+# Initialize the OpenAI client with Instructor
+client = instructor.patch(AsyncOpenAI(api_key=settings.API_KEY))
 
-    async def _call_ai(self, messages: List[Dict], temperature: float = 0.7) -> str:
-        """Generic method to call the AI API"""
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(
-                    f"{self.base_url}/chat/completions",
-                    headers=self.headers,
-                    json={
-                        "model": self.model,
-                        "messages": messages,
-                        "temperature": temperature,
-                    },
-                    timeout=60.0
-                )
-                response.raise_for_status()
-                return response.json()["choices"][0]["message"]["content"]
-            except Exception as e:
-                logger.error(f"Error calling AI API: {str(e)}")
-                raise
+class Section(BaseModel):
+    """Represents a section in the report outline"""
+    title: str = Field(..., description="The title of the section")
+    description: str = Field(..., description="A brief description of what this section will cover")
+
+class ReportOutline(BaseModel):
+    """Structured outline for the report"""
+    sections: List[Section] = Field(..., description="List of sections in the report")
+    
+    def get_section_titles(self) -> List[str]:
+        """Extract just the section titles"""
+        return [section.title for section in self.sections]
+
+class AIService:
+    """Service for interacting with AI models using Instructor for structured outputs"""
+    
+    def __init__(self):
+        self.model = settings.MODEL_NAME
+        self.client = client
+
+    async def _call_structured_llm(
+        self,
+        response_model: Type[BaseModel],
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        **kwargs: Any
+    ) -> BaseModel:
+        """Generic method to call the LLM with structured output"""
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                response_model=response_model,
+                messages=messages,
+                temperature=temperature,
+                **kwargs
+            )
+            return response
+        except Exception as e:
+            logger.error(f"Error calling AI API: {str(e)}")
+            raise
 
     async def generate_outline(self, topic: str) -> List[str]:
-        """Generate an outline for the given topic"""
-        prompt = f"""
-        Generate a detailed outline for a report about: {topic}
+        """Generate a structured outline for the given topic"""
+        system_prompt = """You are an expert researcher and writer. 
+        Create a detailed, well-structured outline for a comprehensive report.
+        """
         
-        The outline should be in the following format:
-        - Main Topic 1
-        - Main Topic 2
-        - Main Topic 3
+        user_prompt = f"""
+        Create a detailed outline for a report about: {topic}
         
-        Each main topic should be a clear, concise heading that covers a major aspect of the topic.
-        Return ONLY the outline, with each item on a new line, prefixed with a dash and space ("- ").
+        The outline should cover all major aspects of the topic in a logical flow.
+        For each section, provide a clear title and a brief description of what it will cover.
         """
         
         messages = [
-            {"role": "system", "content": "You are a helpful assistant that creates detailed report outlines."},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
         ]
         
         try:
-            result = await self._call_ai(messages)
-            # Parse the response into a list of outline items
-            outline = [line.strip(" -\n") for line in result.split("\n") if line.strip()]
-            return outline
+            outline = await self._call_structured_llm(
+                response_model=ReportOutline,
+                messages=messages,
+                temperature=0.7
+            )
+            return outline.get_section_titles()
         except Exception as e:
             logger.error(f"Error generating outline: {str(e)}")
             raise
 
     async def generate_section_content(self, topic: str, section: str) -> str:
         """Generate detailed content for a specific section of the report"""
-        prompt = f"""
-        Write a detailed, informative section about "{section}" as part of a larger report about "{topic}".
+        system_prompt = """You are a professional researcher and writer. 
+        Write a comprehensive, well-structured section for a report.
+        """
         
-        The section should be comprehensive, well-structured, and written in a professional tone.
-        Include relevant facts, examples, and analysis where appropriate.
-        The content should be at least 3-5 paragraphs long.
+        user_prompt = f"""
+        Write a detailed section about "{section}" for a report about "{topic}".
+        
+        The section should be:
+        - Comprehensive and informative
+        - Well-structured with clear paragraphs
+        - Written in a professional, academic tone
+        - Include relevant facts, examples, and analysis
+        - At least 3-5 paragraphs long
         """
         
         messages = [
-            {"role": "system", "content": "You are a professional researcher and writer."},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
         ]
         
         try:
-            return await self._call_ai(messages)
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=0.7,
+                response_model=str
+            )
+            return response
         except Exception as e:
             logger.error(f"Error generating section content: {str(e)}")
             raise
