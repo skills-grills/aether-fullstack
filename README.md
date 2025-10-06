@@ -1,8 +1,10 @@
 # AI Report Generation Service
 
-As per the [candidate brief presented here](BRIEF.md), this is a FastAPI-based service that generates detailed outline reports using AI. The service allows users to submit a topic and receive a structured report with multiple sections, all processed asynchronously.
+As per the [candidate brief presented here](BRIEF.md), this is a FastAPI-based service that generates detailed outline reports using AI. Design decisions are [presented in DEVLOG.md](DEVLOG.md). The service allows users to submit a topic and receive a structured report with multiple sections, all processed asynchronously.
 
-The full generating codeset originally reposited at `https://www.github.com/skills-grills/aether-fullstack` was developed by Joshua Bodyfelt. The code may **ONLY** be used for consideration of his candidacy for a Senior Full-Stack/Backend Engineer. There are no commericial permissions given without expressed written contracting. [Further details are covered by CC BY-NC-SA 4.0 licensing](LICENSE.md).
+## License of Aether's Use
+
+The full generating codeset originally reposited at `https://www.github.com/skills-grills/aether-fullstack` was developed by Joshua Bodyfelt. The code may **ONLY** be used for consideration of his candidacy for a Senior Full-Stack/Backend Engineer role at Aether. ***NO commercial permission is given without expressed written contracting***. [Further details are covered by CC BY-NC-SA 4.0 licensing](LICENSE.md).
 
 ## Features
 
@@ -15,7 +17,6 @@ The full generating codeset originally reposited at `https://www.github.com/skil
 
 ## Prerequisites
 
-- Python 3.10+
 - Docker Desktop
 - OpenAI API key
 
@@ -37,7 +38,7 @@ This build utilises the standard op proc of an "environment variable file" to ho
 
 ## Deployment: Containers
 
-If you're a developer...you damn well better have Docker installed. You can get [Docker Desktop here](https://docs.docker.com/compose/install/) (and the included Compose). We can also do a local deployment using `uv` or `pip`...but for everyone's peace of mind, let's keep it containered! Once it's installed, the build process is very simple:
+If you're a developer...you better have Docker installed. You can get [Docker Desktop here](https://docs.docker.com/compose/install/) (and the included Compose). We can also do a local deployment using `uv` or `pip`...but for everyone's peace of mind, let's keep it containered! Once it's installed, the build process is very simple:
 
 1. Clone the repository (assuming you have GitHub tokening setup already):
    ```bash
@@ -86,29 +87,27 @@ app-1    | INFO:     Application startup complete.
 app-1    | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
 
-Note that you could also start each of these services individually, e.g.
-
-```
-docker compose up redis		# Boots up just Redis
-docker compose up app		# Boots up the AI Report app
-```
+This denotes that the AI Report Generator app is up and listening - also 
 
 ## Usage: API Endpoints
 
 Once you have the two these services deployed, the AI report generator is active. Firstly, the API is accessed at: `http://localhost:8000`. It's interactive Swagger doc is accessed at `http://localhost:8000/docs` - from this (and the brief), there are three main routes present. Here's how to use them with a typical `curl` request, and an example response.
 
 1. **Health Check** - just as a check to ensure that the API is up and running.
+
    ```bash
    user@localhost> curl -X GET http://localhost:8000/health
    {"status":"ok"}
    ```
 2. **Create Report** - this route initiates the build process, running the seperate AI async calls.
+
    ```bash
    user@localhost> curl -X POST http://localhost:8000/api/v1/reports -H "Content-Type: application/json" -d '{"topic": "The Roman Empire"}'
    {"job_id":"8ef0a890-e8ea-4ec8-828f-c13d6d4600f3","status":"pending","progress":0.0,"report":null,"error":null}
    ```
 3. **Get Report** - gets status update OR completed result.
-4. ```bash
+
+   ```bash
    # Status Update
    user@localhost> curl -X GET http://localhost:8000/api/v1/reports/8ef0a890-e8ea-4ec8-828f-c13d6d4600f3
    {"job_id":"8ef0a890-e8ea-4ec8-828f-c13d6d4600f3","status":"processing","progress":0.5249999999999999,"report":null,"error":null}
@@ -145,3 +144,6 @@ Once you have the two these services deployed, the AI report generator is active
      "error": null
    }
    ```
+   # Conclusion
+
+   From the above containerised deployment, an AI Report Generator service is generated, and example `curl` REST actions provided. The resulting API can then be actioned upon with `requests` or similar library in Rust/Typescript/Go, for further result parsing and formatting. Pull Request review initiated, moving on to next JIRA ticket... -JDB
