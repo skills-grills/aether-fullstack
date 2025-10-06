@@ -1,7 +1,5 @@
-import json
-import asyncio
-from datetime import datetime
-from typing import Dict, Optional, List
+from datetime import datetime, timezone
+from typing import Dict, Optional
 import redis.asyncio as redis
 from ..config import settings
 from ..models import Job, JobStatus, JobUpdate
@@ -73,9 +71,6 @@ class JobService:
         progress: Optional[float] = None
     ) -> Optional[Job]:
         update_data = JobUpdate(
-            id=job_id,
-            topic=job.topic,
-            
             status=status,
             error=error,
             progress=progress,
