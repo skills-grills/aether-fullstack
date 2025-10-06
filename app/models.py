@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Literal
 from enum import Enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 class JobStatus(str, Enum):
     PENDING = "pending"
@@ -14,17 +14,19 @@ class JobBase(BaseModel):
     topic: str = Field(..., description="The topic for the report")
     status: JobStatus = Field(default=JobStatus.PENDING, description="Current status of the job")
     progress: float = Field(default=0.0, ge=0.0, le=1.0, description="Progress of the job (0.0 to 1.0)")
-    created_at: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
-    updated_at: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class JobCreate(JobBase):
     pass
 
-class JobUpdate(JobBase):
+class JobUpdate(BaseModel):
+    topic: Optional[str] = Field(None, description="The topic for the report")
     status: Optional[JobStatus] = None
     progress: Optional[float] = None
     error: Optional[str] = None
     result: Optional[Dict] = None
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Job(JobBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))

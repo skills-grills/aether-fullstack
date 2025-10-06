@@ -73,10 +73,13 @@ class JobService:
         progress: Optional[float] = None
     ) -> Optional[Job]:
         update_data = JobUpdate(
+            id=job_id,
+            topic=job.topic,
+            
             status=status,
             error=error,
             progress=progress,
-            updated_at=datetime.utcnow()
+            updated_at=datetime.now(timezone.utc)
         )
         return await self.update_job(job_id, update_data)
 

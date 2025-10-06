@@ -107,9 +107,9 @@ class AIService:
                 model=self.model,
                 messages=messages,
                 temperature=0.7,
-                response_model=str
+                max_tokens=1000
             )
-            return response
+            return response.choices[0].message.content
         except Exception as e:
             logger.error(f"Error generating section content: {str(e)}")
             raise
