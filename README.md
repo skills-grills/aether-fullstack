@@ -87,7 +87,7 @@ app-1    | INFO:     Application startup complete.
 app-1    | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ```
 
-This denotes that the AI Report Generator app is up and listening - also
+This denotes that the AI Report Generator app is up and listening. Now let's hit it with some REST actions!
 
 ## Usage: API Endpoints
 
